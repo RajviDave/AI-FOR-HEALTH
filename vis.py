@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import re
 
 date=[]
 time=[]
@@ -13,5 +14,5 @@ with open('Data/AP01/Flow - 30-05-2024.txt','r') as f:
         date.append(data[0])
         time.append(data[1])
         values.append(data[2])
-    print(values)
-        
+df=pd.DataFrame({'Date':date,'Time':time,'Values':values})
+
