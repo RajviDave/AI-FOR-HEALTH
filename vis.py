@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import re
 import datetime
+import statistics 
 
 date=[]
 time=[]
@@ -17,5 +18,6 @@ with open('Data/AP01/Flow - 30-05-2024.txt','r') as f:
         values.append(data[2])
 df=pd.DataFrame({'Date':date,'Time':time,'Values':values})
 df['Time']=pd.to_datetime(df['Time'],format='%H:%M:%S,%f;')
-df['Time']=df['Time'].dt.floor('min')
-print(df['Time'])
+df['Time']=df['Time'].dt.floor('s')
+
+print(df['Values'])
