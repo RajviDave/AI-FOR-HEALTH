@@ -4,22 +4,18 @@ import re
 import datetime
 import statistics 
 
-date=[]
-time=[]
+date_time=[]
 values=[]
 
 with open('Data/AP01/Flow - 30-05-2024.txt','r') as f:
     lines=f.readlines()[7:]
     for line in lines:
         line=line.strip()
-        data=line.split(' ')
-        date.append(data[0])
-        time.append(data[1])
-        values.append(data[2])
-df=pd.DataFrame({'Date':date,'Time':time,'Values':values})
-df['Time']=pd.to_datetime(df['Time'],format='%H:%M:%S,%f;')
-df['Time']=df['Time'].dt.floor('s')
-mode=0
-for i in range(31):
-    mode=statistics.mode(df['Values'][i])
-print(mode)
+        data=line.split(';')
+        date_time.append(data[0])
+        values.append(data[1])
+df=pd.DataFrame({'Date_Time':date_time,'Values':values})
+df['Date_Time']=pd.to_datetime(df['Date_Time'], format="%d.%m.%Y %H:%M:%S,%f")
+df['Date_Time']=df['Date_Time'].dt.floor("s")
+print(df['Date_Time'])
+print(df['Values'])
