@@ -19,5 +19,7 @@ with open('Data/AP01/Flow - 30-05-2024.txt','r') as f:
 df=pd.DataFrame({'Date':date,'Time':time,'Values':values})
 df['Time']=pd.to_datetime(df['Time'],format='%H:%M:%S,%f;')
 df['Time']=df['Time'].dt.floor('s')
-
-print(df['Values'])
+mode=0
+for i in range(31):
+    mode=statistics.mode(df['Values'][i])
+print(mode)
