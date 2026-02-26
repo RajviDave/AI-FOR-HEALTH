@@ -17,5 +17,6 @@ with open('Data/AP01/Flow - 30-05-2024.txt','r') as f:
 df=pd.DataFrame({'Date_Time':date_time,'Values':values})
 df['Date_Time']=pd.to_datetime(df['Date_Time'], format="%d.%m.%Y %H:%M:%S,%f")
 df['Date_Time']=df['Date_Time'].dt.floor("s")
-print(df['Date_Time'])
-print(df['Values'])
+
+for i in range(32):
+    print(df['Values'][i])
