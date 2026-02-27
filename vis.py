@@ -29,5 +29,14 @@ for i in range(0,len(df['Values']),window):
         rms = np.sqrt(np.mean(np.square(piece)))
         rms_values.append(rms)
 
+final_time = []
+seen = set()
+
+for time in df['Date_Time']:
+    if time not in seen:
+        final_time.append(time)
+        seen.add(time)
+
+print(len(final_time))
 print(len(rms_values))
     
