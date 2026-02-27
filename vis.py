@@ -12,5 +12,9 @@ with open('Data/AP01/Flow - 30-05-2024.txt') as file:
         data=lines.split(';')
         Date_time.append(data[0])
         Value.append(data[1])
-    
-print(Value[:200000])
+        
+df=pd.DataFrame({'Date_time':Date_time,'Values':Value})
+df['Date_time']=pd.to_datetime(df['Date_time'],format="%d.%m.%Y %H:%M:%S,%f")
+
+df['Data_time']=df['Date_time'].dt.floor('s')
+print(df['Data_time'])
