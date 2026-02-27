@@ -20,23 +20,24 @@ with open('Data/AP01/Flow - 30-05-2024.txt','r') as f:
 df=pd.DataFrame({'Date_Time':date_time,'Values':values})
 df['Date_Time']=pd.to_datetime(df['Date_Time'], format="%d.%m.%Y %H:%M:%S,%f")
 df['Date_Time']=df['Date_Time'].dt.floor("s")
+df['Values'] = pd.to_numeric(df['Values'], errors='coerce')
 
-df['Values']=pd.to_numeric(df['Values'])
-for i in range(0,len(df['Values']),window):
-    piece=df['Values'][i:i+window]
+df = df.dropna(subset=['Values'])
+
+values = df['Values'].to_numpy()
+
+window = 32
+rms_values = []
+
+for i in range(0, len(values), window):
+    piece = values[i:i+window]
     
-    if len(piece)== window:
-        rms = np.sqrt(np.mean(np.square(piece)))
+    if len(piece)==window:
+        rms = np.sqrt(np.mean(piece**2))
         rms_values.append(rms)
 
-final_time = []
-seen = set()
-
-for time in df['Date_Time']:
-    if time not in seen:
-        final_time.append(time)
-        seen.add(time)
+final_time = df['Date_Time'].drop_duplicates().tolist()
 
 print(len(final_time))
-print(len(rms_values))
+print(rms_values[:10])
     
