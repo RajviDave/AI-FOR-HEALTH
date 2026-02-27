@@ -13,5 +13,4 @@ with open('Data/AP01/Flow - 30-05-2024.txt') as file:
         Date_time.append(data[0])
         Value.append(data[1])
     
-    print(Value[:1000])
-
+print(Value[:200000])
