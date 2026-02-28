@@ -3,6 +3,7 @@ import re
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
+import statistics
 
 Date_time=[]
 Value=[]
@@ -29,29 +30,26 @@ Values=df['Values']
 # print(Values)
 
 window = 32
-rms_values = []
+mean_values = []
 
 for i in range(0, len(Values), window):
     piece = Values[i:i+window]
     
     if len(piece)==window:
-        rms = np.sqrt(np.mean(piece**2))
-        rms_values.append(rms)
+        mean = statistics.mean(piece)
+        mean_values.append(mean)
 
-min_len = min(len(rms_values), len(final_time))
+min_len = min(len(mean_values), len(final_time))
 
-rms_values = rms_values[:min_len]
+rms_values = mean_values[:min_len]
 final_time = final_time[:min_len]
-
-# print(len(rms_values))
-# print(len(final_time))
 
 plt.figure(figsize=(10,5))
 
-plt.plot(final_time[:150], rms_values[:150], marker='o')
+plt.plot(final_time[:200], mean_values[:200], marker='o')
 
 plt.xlabel("Time")
-plt.ylabel("RMS Value")
+plt.ylabel("Mean Value")
 plt.title("First 30 Seconds RMS")
 
 plt.xticks(rotation=45)
