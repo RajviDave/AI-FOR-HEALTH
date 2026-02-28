@@ -16,5 +16,9 @@ with open('Data/AP01/Flow - 30-05-2024.txt') as file:
 df=pd.DataFrame({'Date_time':Date_time,'Values':Value})
 df['Date_time']=pd.to_datetime(df['Date_time'],format="%d.%m.%Y %H:%M:%S,%f")
 
-df['Data_time']=df['Date_time'].dt.floor('s')
-print(df['Data_time'])
+df['Date_time']=df['Date_time'].dt.floor('s')
+
+final_time=[]
+final_time=df['Date_time'].drop_duplicates().tolist()
+print(len(final_time))
+
