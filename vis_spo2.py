@@ -47,15 +47,4 @@ final_time = final_time[:min_len]
 print(len(median_value))
 print(len(final_time))
 
-plt.figure(figsize=(10,5))
 
-plt.plot(final_time[:200], median_value[:200], marker='o')
-
-plt.xlabel("Time")
-plt.ylabel("Median Value")
-plt.title("First 30 Seconds Mean")
-
-plt.xticks(rotation=45)
-
-plt.tight_layout()
-plt.show()

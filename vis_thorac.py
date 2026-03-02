@@ -44,15 +44,4 @@ min_len = min(len(mean_values), len(final_time))
 rms_values = mean_values[:min_len]
 final_time = final_time[:min_len]
 
-plt.figure(figsize=(10,5))
 
-plt.plot(final_time[:200], mean_values[:200], marker='o')
-
-plt.xlabel("Time")
-plt.ylabel("Mean Value")
-plt.title("First 30 Seconds RMS")
-
-plt.xticks(rotation=45)
-
-plt.tight_layout()
-plt.show()
