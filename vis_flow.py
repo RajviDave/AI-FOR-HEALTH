@@ -40,8 +40,8 @@ for i in range(0, len(Values), window):
 
 min_len = min(len(rms_values), len(final_time))
 
-t_flow = rms_values[:min_len]
-final_time = final_time[:min_len]
+rms_values = rms_values[:min_len]
+t_flow = final_time[:min_len]
 
 # print(len(t_flow))
 # print(len(final_time))

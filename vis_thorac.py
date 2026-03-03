@@ -41,8 +41,8 @@ for i in range(0, len(Values), window):
 
 min_len = min(len(mean_values), len(final_time))
 
-t_thorac = mean_values[:min_len]
-final_time = final_time[:min_len]
+mean_values = mean_values[:min_len]
+t_thorac = final_time[:min_len]
 
 # print(len(t_thorac))
 # print(len(final_time))
