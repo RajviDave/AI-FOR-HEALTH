@@ -44,5 +44,5 @@ min_len = min(len(median_value), len(final_time))
 t_spo2 = median_value[:min_len]
 final_time = final_time[:min_len]
 
-print(len(t_spo2))
-print(len(final_time))
+# print(len(t_spo2))
+# print(len(final_time))

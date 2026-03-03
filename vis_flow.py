@@ -43,5 +43,5 @@ min_len = min(len(rms_values), len(final_time))
 t_flow = rms_values[:min_len]
 final_time = final_time[:min_len]
 
-print(len(t_flow))
-print(len(final_time))
+# print(len(t_flow))
+# print(len(final_time))

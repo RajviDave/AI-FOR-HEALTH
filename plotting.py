@@ -9,6 +9,10 @@ t_flow = np.array(t_flow)
 t_thorac = np.array(t_thorac)
 t_spo2 = np.array(t_spo2)
 
+print(t_flow[:25])
+print(t_thorac[:25])
+print(t_spo2[:25])
+
 airflow = np.array(rms_values)
 thoracic = np.array(mean_values)
 spo2 = np.array(median_value)
@@ -33,28 +37,28 @@ t_spo2_trim = t_spo2[mask_spo2]
 spo2_trim = spo2[mask_spo2]
 
 # Only interpolate if SpO2 has data
-if len(t_spo2_trim) > 1 and len(t_air_trim) > 1:
-    t_air_sec = np.array([(t - start_time).total_seconds() for t in t_air_trim])
-    t_spo2_sec = np.array([(t - start_time).total_seconds() for t in t_spo2_trim])
-    spo2_resampled = np.interp(t_air_sec, t_spo2_sec, spo2_trim)
-else:
-    spo2_resampled = []
+# if len(t_spo2_trim) > 1 and len(t_air_trim) > 1:
+#     t_air_sec = np.array([(t - start_time).total_seconds() for t in t_air_trim])
+#     t_spo2_sec = np.array([(t - start_time).total_seconds() for t in t_spo2_trim])
+#     spo2_resampled = np.interp(t_air_sec, t_spo2_sec, spo2_trim)
+# else:
+#     spo2_resampled = []
 
 # Plot
-fig, axes = plt.subplots(3, 1, figsize=(15, 8), sharex=True)
+# fig, axes = plt.subplots(3, 1, figsize=(15, 8), sharex=True)
 
-axes[0].plot(t_air_trim, airflow_trim)
-axes[0].set_ylabel("Airflow")
+# axes[0].plot(t_air_trim, airflow_trim)
+# axes[0].set_ylabel("Airflow")
 
-axes[1].plot(t_th_trim, thoracic_trim)
-axes[1].set_ylabel("Thoracic")
+# axes[1].plot(t_th_trim, thoracic_trim)
+# axes[1].set_ylabel("Thoracic")
 
-if len(spo2_resampled) > 0:
-    axes[2].plot(t_air_trim, spo2_resampled)
-else:
-    axes[2].plot(t_spo2_trim, spo2_trim)
+# if len(spo2_resampled) > 0:
+#     axes[2].plot(t_air_trim, spo2_resampled)
+# else:
+#     axes[2].plot(t_spo2_trim, spo2_trim)
 
-axes[2].set_ylabel("SpO2")
+# axes[2].set_ylabel("SpO2")
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout()
+# plt.show()
