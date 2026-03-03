@@ -41,10 +41,8 @@ for i in range(0, len(Values), window):
     
 min_len = min(len(median_value), len(final_time))
 
-rms_values = median_value[:min_len]
+median_value = median_value[:min_len]
 final_time = final_time[:min_len]
 
 print(len(median_value))
 print(len(final_time))
-
-

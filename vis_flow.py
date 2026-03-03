@@ -42,3 +42,6 @@ min_len = min(len(rms_values), len(final_time))
 
 rms_values = rms_values[:min_len]
 final_time = final_time[:min_len]
+
+print(len(rms_values))
+print(len(final_time))
