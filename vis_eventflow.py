@@ -36,9 +36,12 @@ for time in timing:
     end_timing.append(tm[1])
 
 start_timing=pd.to_datetime(start_timing,format="%H:%M:%S,%f")
-
 start_timing=start_timing.floor('s')
-print(start_timing[:25])
+
+end_timing=pd.to_datetime(end_timing,format="%H:%M:%S,%f")
+end_timing=end_timing.floor('s')
+
+print(end_timing[:25])
     
 
 
