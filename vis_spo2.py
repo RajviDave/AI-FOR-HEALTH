@@ -41,8 +41,8 @@ for i in range(0, len(Values), window):
     
 min_len = min(len(median_value), len(final_time))
 
-median_value = median_value[:min_len]
+t_spo2 = median_value[:min_len]
 final_time = final_time[:min_len]
 
-print(len(median_value))
+print(len(t_spo2))
 print(len(final_time))
