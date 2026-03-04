@@ -41,7 +41,7 @@ start_timing=start_timing.floor('s')
 end_timing=pd.to_datetime(end_timing,format="%H:%M:%S,%f")
 end_timing=end_timing.floor('s')
 
-print(end_timing[:25])
+
     
 
 
