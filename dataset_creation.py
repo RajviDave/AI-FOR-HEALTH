@@ -86,9 +86,6 @@ def label_window(start, end):
 
     return event_start
 
-print()
-
-
 # # -------------------------------
 # # MAIN PIPELINE
 # # -------------------------------
