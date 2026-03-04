@@ -25,12 +25,10 @@ def bandpass_filter(signal, lowcut, highcut, fs, order=4):
 
     return filtered_signal
 
-bandpass=bandpass_filter(rms_values,0.17,0.4,32,4)
-
 # -------------------------------
 # Preprocess signals
 # -------------------------------
-def preprocess_signals(airflow):
+def preprocess_signals(airflow,thoracic):
 
     airflow = bandpass_filter(
         airflow,
@@ -39,12 +37,14 @@ def preprocess_signals(airflow):
         fs=32
     )
 
-    return airflow
+    thoracic = bandpass_filter(
+        thoracic,
+        0.17,
+        0.4,
+        fs=32
+    )
 
-preprocess=preprocess_signals(rms_values)
-# print(preprocess[:25])
-# print(len(preprocess))
-
+    return airflow,thoracic
 
 # # -------------------------------
 # # Window creation
@@ -64,8 +64,6 @@ def create_windows(signal, fs, window_sec=30, overlap=0.5):
 
     return windows
 
-window=create_windows(rms_values,32,30,0.5)
-
 # # -------------------------------
 # # Label windows
 # # -------------------------------
@@ -84,7 +82,7 @@ def label_window(start, end):
         if overlap / window_len > 0.5:
             return Disease[i]
 
-    return event_start
+    return "Normal"
 
 # # -------------------------------
 # # MAIN PIPELINE
@@ -99,12 +97,10 @@ spo2 = np.array(median_values)
 # filter breathing signals
 airflow, thoracic = preprocess_signals(airflow, thoracic)
 
-
 # create windows
 airflow_windows = create_windows(airflow, fs=32)
 thoracic_windows = create_windows(thoracic, fs=32)
 spo2_windows = create_windows(spo2, fs=4)
-
 
 labels = []
 
@@ -116,7 +112,6 @@ for i in range(len(airflow_windows)):
     label = label_window(start_time, end_time)
 
     labels.append(label)
-
 
 # build dataset
 dataset = []
@@ -132,9 +127,7 @@ for i in range(len(airflow_windows)):
 
     dataset.append(row)
 
-
 df = pd.DataFrame(dataset)
-
 
 # save dataset
 df.to_pickle("Dataset/breathing_dataset.pkl")
