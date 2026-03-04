@@ -44,5 +44,5 @@ min_len = min(len(mean_values), len(final_time))
 mean_values = mean_values[:min_len]
 t_thorac = final_time[:min_len]
 
-print(len(t_thorac))
-print(len(final_time))
+# print(len(t_thorac))
+# print(len(final_time))
