@@ -52,7 +52,7 @@ def preprocess_signals(airflow,thoracic):
 def create_windows(signal, fs, window_sec=30, overlap=0.5):
 
     window_size = int(window_sec * fs)
-    step = int(window_size * (1 - overlap))
+    step = int(window_size * (overlap))
 
     windows = []
 
