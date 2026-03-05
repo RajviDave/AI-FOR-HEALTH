@@ -64,6 +64,14 @@ def create_windows(signal, fs, window_sec=30, overlap=0.5):
 
     return windows
 
+reference_time = start_timing[0]
+event_start_seconds = []
+event_end_seconds = []
+
+for i in range(len(Disease)):
+    event_start_seconds.append((start_timing[i] - reference_time).total_seconds())
+    event_end_seconds.append((end_timing[i] - reference_time).total_seconds())
+
 # # -------------------------------
 # # Label windows
 # # -------------------------------
@@ -72,8 +80,8 @@ def label_window(start, end):
 
     for i in range(len(Disease)):
 
-        event_start = start_timing[i].timestamp()
-        event_end = end_timing[i].timestamp()
+        event_start = event_start_seconds[i]
+        event_end = event_end_seconds[i]
 
         overlap = max(0, min(end, event_end) - max(start, event_start))
 
