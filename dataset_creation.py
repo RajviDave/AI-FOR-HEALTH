@@ -2,9 +2,9 @@ import numpy as np
 from scipy.signal import butter, filtfilt
 import pandas as pd
 
-from vis_flow import rms_values
-from vis_spo2 import median_values
-from vis_thorac import mean_values
+from vis_flow import flow_values
+from vis_spo2 import spo2_values
+from vis_thorac import thoracic_values
 from vis_eventflow import Disease, start_timing, end_timing
 
 # -------------------------------
@@ -96,9 +96,9 @@ def label_window(start, end):
 # # -------------------------------
 
 # # convert to numpy
-airflow = np.array(rms_values)
-thoracic = np.array(mean_values)
-spo2 = np.array(median_values)
+airflow = np.array(flow_values)
+thoracic = np.array(thoracic_values)
+spo2 = np.array(spo2_values)
 
 
 # filter breathing signals
@@ -120,10 +120,11 @@ for i in range(len(airflow_windows)):
 
     labels.append(label)
 
-# build dataset
+min_len = min(len(airflow_windows), len(thoracic_windows), len(spo2_windows))
+
 dataset = []
 
-for i in range(len(airflow_windows)):
+for i in range(min_len):
 
     row = {
         "airflow": airflow_windows[i],

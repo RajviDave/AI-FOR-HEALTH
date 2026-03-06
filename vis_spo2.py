@@ -26,14 +26,14 @@ final_time=df['Date_time'].drop_duplicates().tolist()
 
 df['Values']=pd.to_numeric(df['Values'],errors='coerce')
 
-Values=df['Values']
-# print(Values)
+spo2_values=df['Values']
+
 
 window = 4
 median_value=[]
 
-for i in range(0, len(Values), window):
-    piece = Values[i:i+window]
+for i in range(0, len(spo2_values), window):
+    piece = spo2_values[i:i+window]
     
     if len(piece)==window:
         median=statistics.median(piece)

@@ -25,14 +25,13 @@ final_time=df['Date_time'].drop_duplicates().tolist()
 
 df['Values']=pd.to_numeric(df['Values'],errors='coerce')
 
-Values=df['Values']
-# print(Values)
+flow_values=df['Values']
 
 window = 32
 rms_values = []
 
-for i in range(0, len(Values), window):
-    piece = Values[i:i+window]
+for i in range(0, len(flow_values), window):
+    piece = flow_values[i:i+window]
     
     if len(piece)==window:
         rms = np.sqrt(np.mean(piece**2))
@@ -40,5 +39,5 @@ for i in range(0, len(Values), window):
 
 min_len = min(len(rms_values), len(final_time))
 
-rms_values = rms_values[:min_len]
-t_flow = final_time[:min_len]
+# rms_values = rms_values[:min_len]
+# t_flow = final_time[:min_len]
