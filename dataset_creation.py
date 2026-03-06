@@ -7,7 +7,6 @@ from vis_spo2 import median_values
 from vis_thorac import mean_values
 from vis_eventflow import Disease, start_timing, end_timing
 
-
 # -------------------------------
 # Bandpass Filter
 # -------------------------------
