@@ -48,7 +48,7 @@ def preprocess_signals(airflow,thoracic):
 # # -------------------------------
 # # Window creation
 # # -------------------------------
-def create_windows(signal, fs, window_sec=30, overlap=0.5):
+def create_windows(signal, fs, window_sec=15, overlap=0.5):
 
     window_size = int(window_sec * fs)
     step = int(window_size * (overlap))
@@ -135,6 +135,7 @@ for i in range(len(airflow_windows)):
     dataset.append(row)
 
 df = pd.DataFrame(dataset)
+print(df.columns)
 
 # save dataset
-df.to_pickle("Dataset/breathing_dataset.pkl")
+# df.to_pickle("Dataset/breathing_dataset.pkl")
