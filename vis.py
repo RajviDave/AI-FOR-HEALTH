@@ -1,6 +1,10 @@
 import argparse
 import os
 import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.dates as mdates
+from datetime import datetime, timedelta
+from matplotlib.backends.backend_pdf import PdfPages
 
 from vis_flow import vis_flow
 from vis_thorac import thorac
@@ -25,44 +29,55 @@ t_spo2, spo2_values = vis_spo2(folder,"spo2.txt")
 
 # events = vis_eventflow(folder)
 
-
-# create stacked plots
-fig, axes = plt.subplots(3, 1, figsize=(15,10), sharex=True)
-
-
-# airflow
-axes[0].plot(t_flow, flow_values)
-axes[0].set_title("Nasal Airflow")
-
-
-# thoracic movement
-axes[1].plot(t_thorac, thorac_values)
-axes[1].set_title("Thoracic Movement")
-
-
-# spo2
-axes[2].plot(t_spo2, spo2_values)
-axes[2].set_title("SpO2")
-
-
-# overlay events
-# for event in events:
-
-#     start = event["start"]
-#     end = event["end"]
-
-#     for ax in axes:
-#         ax.axvspan(start, end, alpha=0.3)
-
-
-# plt.xlabel("Time")
-
-
-# create output folder
 os.makedirs("Visualizations", exist_ok=True)
+pdf_path = f"Visualizations/{participant}_visualization.pdf"
 
-output_path = f"Visualizations/{participant}_visualization.pdf"
+start_time = min(t_flow[0], t_thorac[0], t_spo2[0])
+end_time = max(t_flow[-1], t_thorac[-1], t_spo2[-1])
 
-plt.savefig(output_path)
 
-print("Saved:", output_path)
+window = 45   # seconds per page
+
+
+with PdfPages(pdf_path) as pdf:
+
+    current = start_time
+
+    while current < end_time:
+
+        next_time = current + timedelta(seconds=window)
+
+        fig, ax = plt.subplots(3,1,sharex=True, figsize=(16,6))
+
+        # FLOW
+        flow_mask = [(current <= t < next_time) for t in t_flow]
+        ax[0].plot(np.array(t_flow)[flow_mask], np.array(flow_values)[flow_mask])
+        ax[0].set_ylabel("Nasal Flow (L/min)")
+        ax[0].grid(True)
+
+        # THORAC
+        thorac_mask = [(current <= t < next_time) for t in t_thorac]
+        ax[1].plot(np.array(t_thorac)[thorac_mask], np.array(thorac_values)[thorac_mask])
+        ax[1].set_ylabel("Resp. Amplitude")
+        ax[1].grid(True)
+
+        # SPO2
+        spo2_mask = [(current <= t < next_time) for t in t_spo2]
+        ax[2].plot(np.array(t_spo2)[spo2_mask], np.array(spo2_values)[spo2_mask])
+        ax[2].set_ylabel("SpO2 (%)")
+        ax[2].grid(True)
+
+        # timestamp ticks every 5 seconds
+        ax[2].xaxis.set_major_locator(mdates.SecondLocator(interval=5))
+        ax[2].xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
+
+        plt.xticks(rotation=90)
+        plt.tight_layout()
+
+        pdf.savefig(fig)
+        plt.close(fig)
+
+        current = next_time
+
+
+print("Saved:", pdf_path)
