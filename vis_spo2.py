@@ -4,45 +4,50 @@ import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import statistics
+import os
 
-Date_time=[]
-Value=[]
+def vis_spo2(folder,file):
 
-with open('Data/AP02/SPO2  - 30.05.2024.txt') as file:
-    lines=file.readlines()[7:]
-    for line in lines:
-        lines=line.strip()
-        data=lines.split(';')
-        Date_time.append(data[0])
-        Value.append(data[1])
+    Date_time=[]
+    Value=[]
+
+    file_path = os.path.join(folder, file)
+
+    with open(file_path) as file:
+
+        lines=file.readlines()[7:]
+        for line in lines:
+            lines=line.strip()
+            data=lines.split(';')
+            Date_time.append(data[0])
+            Value.append(data[1])
+            
+    df=pd.DataFrame({'Date_time':Date_time,'Values':Value})
+    df['Date_time']=pd.to_datetime(df['Date_time'],format="%d.%m.%Y %H:%M:%S,%f")
+
+    df['Date_time']=df['Date_time'].dt.floor('s')
+
+    final_time=[]
+    final_time=df['Date_time'].drop_duplicates().tolist()
+
+    df['Values']=pd.to_numeric(df['Values'],errors='coerce')
+
+    spo2_values=df['Values']
+
+
+    window = 4
+    median_value=[]
+
+    for i in range(0, len(spo2_values), window):
+        piece = spo2_values[i:i+window]
         
-df=pd.DataFrame({'Date_time':Date_time,'Values':Value})
-df['Date_time']=pd.to_datetime(df['Date_time'],format="%d.%m.%Y %H:%M:%S,%f")
+        if len(piece)==window:
+            median=statistics.median(piece)
+            median_value.append(median)
+        
+    min_len = min(len(median_value), len(final_time))
 
-df['Date_time']=df['Date_time'].dt.floor('s')
+    median_values = median_value[:min_len]
+    t_spo2 = final_time[:min_len]
 
-final_time=[]
-final_time=df['Date_time'].drop_duplicates().tolist()
-
-df['Values']=pd.to_numeric(df['Values'],errors='coerce')
-
-spo2_values=df['Values']
-
-
-window = 4
-median_value=[]
-
-for i in range(0, len(spo2_values), window):
-    piece = spo2_values[i:i+window]
-    
-    if len(piece)==window:
-        median=statistics.median(piece)
-        median_value.append(median)
-    
-min_len = min(len(median_value), len(final_time))
-
-median_values = median_value[:min_len]
-t_spo2 = final_time[:min_len]
-
-# print(len(median_values))
-# print(len(t_spo2))
+    return t_spo2,median_value
