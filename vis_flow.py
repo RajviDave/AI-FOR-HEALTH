@@ -61,3 +61,26 @@ def vis_flow(folder, file):
     t_flow = final_time[:min_len]
 
     return t_flow, rms_values
+
+import os
+
+def values(folder_path):
+
+    datetime = []
+    flow_values = []
+
+    file_path = os.path.join(folder_path, "flow.txt")
+
+    with open(file_path, "r") as file:
+
+        lines = file.readlines()[7:]   # skip header lines
+
+        for line in lines:
+            line = line.strip()
+            data = line.split(';')
+
+            datetime.append(data[0])
+            flow_values.append(data[1])
+
+    return datetime, flow_values
+

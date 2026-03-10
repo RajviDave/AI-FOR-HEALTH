@@ -50,3 +50,26 @@ def thorac(folder,file):
     t_thorac = final_time[:min_len]
 
     return t_thorac,mean_values
+
+import os
+
+def thorac_values(folder_path):
+
+    thorac_time = []
+    thorac_values = []
+
+    file_path = os.path.join(folder_path, "thorac.txt")
+
+    with open(file_path, "r") as file:
+
+        lines = file.readlines()[7:]   # skip header lines
+
+        for line in lines:
+            line = line.strip()
+            data = line.split(';')
+
+            thorac_time.append(data[0])
+            thorac_values.append(data[1])
+
+    return thorac_time, thorac_values
+
