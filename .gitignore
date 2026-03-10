@@ -3,6 +3,12 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+Dataset/
+*.pkl
+*.csv
+*.h5
+*.model
+
 # C extensions
 *.so
 

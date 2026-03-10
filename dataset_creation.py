@@ -1,34 +1,31 @@
 import os
 import numpy as np
+import pandas as pd
 from scipy.signal import butter, filtfilt
+import argparse
 
 from vis_flow import values
 from vis_thorac import thorac_values
-data_dir = "Data"
+
+dataset_rows = []
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-in_dir", required=True, help="Input Data Directory")
+parser.add_argument("-out_dir", required=True, help="Output Dataset Directory")
+
+args = parser.parse_args()
+
+data_dir = args.in_dir
+out_dir = args.out_dir
 
 participants = sorted(os.listdir(data_dir))
-
-for participant in participants:
-
-    folder_path = os.path.join(data_dir, participant)
-
-    if not os.path.isdir(folder_path):
-        continue
-
-    print("Processing:", participant)
-
-    thorac_time, thorac_value = thorac_values(folder_path)
-    datatime,flow_values = values(folder_path)
-
-flow_values=np.array(flow_values,dtype=float)
-thorac_value=np.array(thorac_value,dtype=float)
-
-print(len(flow_values))
-
+# -----------------------------
+# Bandpass Filter
+# -----------------------------
 def bandpass_filter(signal, lowcut, highcut, fs, order=4):
 
     nyquist = fs / 2
-
     low = lowcut / nyquist
     high = highcut / nyquist
 
@@ -38,13 +35,10 @@ def bandpass_filter(signal, lowcut, highcut, fs, order=4):
 
     return filtered_signal
 
-lowcut = 0.17
-highcut = 0.4
-fs = 32
 
-flow_filtered = bandpass_filter(flow_values, lowcut, highcut, fs)
-thoracic_filtered = bandpass_filter(thorac_value, lowcut, highcut, fs)
-
+# -----------------------------
+# Window Creation
+# -----------------------------
 def create_windows(flow_signal, thoracic_signal, fs=32, window_sec=30, overlap=0.5):
 
     window_size = int(fs * window_sec)
@@ -63,10 +57,14 @@ def create_windows(flow_signal, thoracic_signal, fs=32, window_sec=30, overlap=0
 
         window = np.stack((flow_window, thoracic_window), axis=1)
 
-        windows.append(window)
+        windows.append((window, start, end))
 
     return windows
 
+
+# -----------------------------
+# Label Function
+# -----------------------------
 def label_window(window_start, window_end, events_df):
 
     window_duration = (window_end - window_start).total_seconds()
@@ -95,328 +93,102 @@ def label_window(window_start, window_end, events_df):
     else:
         return "Normal"
 
-# import os
-# import argparse
-# import numpy as np
-# import pandas as pd
-# import pickle
-# from scipy.signal import butter, filtfilt
 
-# from vis_flow import vis_flow
-# from vis_thorac import thorac
-# from vis_spo2 import vis_spo2
+# -----------------------------
+# MAIN LOOP
+# -----------------------------
+for participant in participants:
 
+    folder_path = os.path.join(data_dir, participant)
 
-# # ------------------------
-# # Bandpass filter
-# # ------------------------
-# def bandpass_filter(signal, fs, low=0.17, high=0.4, order=4):
+    if not os.path.isdir(folder_path):
+        continue
 
-#     nyq = 0.5 * fs
-#     low = low / nyq
-#     high = high / nyq
+    print("Processing:", participant)
 
-#     b, a = butter(order, [low, high], btype='band')
+    # read signals
+    thorac_time, thorac_value = thorac_values(folder_path)
+    datetime, flow_values = values(folder_path)
 
-#     return filtfilt(b, a, signal)
+    flow_values = np.array(flow_values, dtype=float)
+    thorac_value = np.array(thorac_value, dtype=float)
 
+    # bandpass filtering
+    flow_filtered = bandpass_filter(flow_values, 0.17, 0.4, 32)
+    thoracic_filtered = bandpass_filter(thorac_value, 0.17, 0.4, 32)
 
-# # ------------------------
-# # Window creation
-# # ------------------------
-# def create_windows(signal, window_size, step):
+    
+    def load_events(folder_path):
 
-#     windows = []
+        file_path = os.path.join(folder_path, "flow_event.txt")
 
-#     for i in range(0, len(signal) - window_size, step):
+        events = []
 
-#         windows.append(signal[i:i+window_size])
+        with open(file_path, "r") as f:
 
-#     return windows
+            lines = f.readlines()[5:]   # skip header
 
+            for line in lines:
 
-# # ------------------------
-# # Main
-# # ------------------------
-# parser = argparse.ArgumentParser()
-# parser.add_argument("-in_dir", required=True)
-# parser.add_argument("-out_dir", required=True)
+                line = line.strip()
 
-# args = parser.parse_args()
+                parts = line.split(";")
 
-# data_dir = args.in_dir
-# out_dir = args.out_dir
+                time_range = parts[0]
+                event_type = parts[2].strip()
 
-# os.makedirs(out_dir, exist_ok=True)
+                start_str, end_str = time_range.split("-")
 
-# dataset = []
+                start_time = pd.to_datetime(start_str, format="%d.%m.%Y %H:%M:%S,%f")
+                end_time = pd.to_datetime(end_str, format="%H:%M:%S,%f")
 
+                end_time = start_time.replace(
+                    hour=end_time.hour,
+                    minute=end_time.minute,
+                    second=end_time.second,
+                    microsecond=end_time.microsecond
+                )
 
-# participants = os.listdir(data_dir)
+                events.append({
+                    "start_time": start_time,
+                    "end_time": end_time,
+                    "event": event_type
+                })
 
-# for p in participants:
+        return pd.DataFrame(events)
 
-#     folder = os.path.join(data_dir, p)
+    fs = 32
 
-#     print("Processing:", p)
+    windows = create_windows(flow_filtered, thoracic_filtered)
 
-#     # load signals
-#     t_flow, flow_values = vis_flow(folder, "flow.txt")
-#     t_thorac, thorac_values = thorac(folder, "thorac.txt")
-#     t_spo2, spo2_values = vis_spo2(folder, "spo2.txt")
+    events_df = load_events(folder_path)
 
+    for window, start, end in windows:
 
-#     flow_values = np.array(flow_values)
-#     thorac_values = np.array(thorac_values)
-#     spo2_values = np.array(spo2_values)
+        window_start = pd.to_datetime(datetime[start])
+        window_end = pd.to_datetime(datetime[end])
 
+        label = label_window(window_start, window_end, events_df)
 
-#     # filter breathing signals
-#     flow_values = bandpass_filter(flow_values, 32)
-#     thorac_values = bandpass_filter(thorac_values, 32)
+        dataset_rows.append({
+            "participant": participant,
+            "window": window,
+            "label": label
+        })
 
+       
 
-#     # window settings
-#     window_sec = 30
-#     overlap = 0.5
 
-#     flow_window = 32 * window_sec
-#     thorac_window = 32 * window_sec
-#     spo2_window = 4 * window_sec
 
-#     step_flow = int(flow_window * (1 - overlap))
-#     step_thorac = int(thorac_window * (1 - overlap))
-#     step_spo2 = int(spo2_window * (1 - overlap))
+# -----------------------------
+# SAVE DATASET
+# -----------------------------
+dataset_df = pd.DataFrame(dataset_rows)
 
+os.makedirs(out_dir, exist_ok=True)
 
-#     flow_windows = create_windows(flow_values, flow_window, step_flow)
-#     thorac_windows = create_windows(thorac_values, thorac_window, step_thorac)
-#     spo2_windows = create_windows(spo2_values, spo2_window, step_spo2)
+output_path = os.path.join(out_dir, "breathing_dataset.pkl")
 
+dataset_df.to_pickle(output_path)
 
-#     n = min(len(flow_windows), len(thorac_windows), len(spo2_windows))
-
-
-#     for i in range(n):
-
-#         feature = np.concatenate([
-#             flow_windows[i],
-#             thorac_windows[i],
-#             spo2_windows[i]
-#         ])
-
-#         label = "Normal"
-
-#         dataset.append({
-#             "participant": p,
-#             "features": feature,
-#             "label": label
-#         })
-
-
-# # convert to dataframe
-# df = pd.DataFrame(dataset)
-
-
-# output_path = os.path.join(out_dir, "breathing_dataset.pkl")
-
-# with open(output_path, "wb") as f:
-#     pickle.dump(df, f)
-
-
-# print("Dataset saved:", output_path)
-
-# # import pandas as pd
-# # import numpy as np
-# # import os
-# # from scipy.signal import butter, filtfilt
-
-
-# # # -------------------------------
-# # # Bandpass Filter
-# # # -------------------------------
-# # def bandpass_filter(signal, lowcut, highcut, fs, order=4):
-
-# #     signal = np.array(signal)
-
-# #     nyquist = 0.5 * fs
-# #     low = lowcut / nyquist
-# #     high = highcut / nyquist
-
-# #     b, a = butter(order, [low, high], btype='band')
-
-# #     filtered_signal = filtfilt(b, a, signal)
-
-# #     return filtered_signal
-
-
-# # # -------------------------------
-# # # Preprocess signals
-# # # -------------------------------
-# # def preprocess_signals(airflow, thoracic):
-
-# #     airflow = bandpass_filter(
-# #         airflow,
-# #         0.17,
-# #         0.4,
-# #         fs=32
-# #     )
-
-# #     thoracic = bandpass_filter(
-# #         thoracic,
-# #         0.17,
-# #         0.4,
-# #         fs=32
-# #     )
-
-# #     return airflow, thoracic
-
-
-# # # -------------------------------
-# # # Window creation
-# # # -------------------------------
-# # def create_windows(signal, fs, window_sec=30, overlap=0.5):
-
-# #     window_size = int(window_sec * fs)
-# #     step = int(window_size * overlap)
-
-# #     windows = []
-
-# #     for start in range(0, len(signal) - window_size, step):
-
-# #         end = start + window_size
-# #         windows.append(signal[start:end])
-
-# #     return windows
-
-
-# # # -------------------------------
-# # # Label windows
-# # # -------------------------------
-# # def label_window(start, end, Disease, event_start_seconds, event_end_seconds):
-
-# #     for i in range(len(Disease)):
-
-# #         event_start = event_start_seconds[i]
-# #         event_end = event_end_seconds[i]
-
-# #         overlap = max(0, min(end, event_end) - max(start, event_start))
-
-# #         window_len = end - start
-
-# #         if overlap / window_len > 0.5:
-# #             return Disease[i]
-
-# #     return "Normal"
-
-
-# # # -------------------------------
-# # # Process one participant
-# # # -------------------------------
-# # def process_participant(folder_path):
-
-# #     airflow = pd.read_csv(folder_path+"/flow.txt",skiprows=7,sep=";",header=None,engine="python")
-# #     thoracic = pd.read_csv(folder_path+"/thorac.txt",skiprows=7,sep=";",header=None,engine="python")
-# #     spo2 = pd.read_csv(folder_path+"/spo2.txt",skiprows=7,sep=";",header=None,engine="python")
-# #     events = pd.read_csv(folder_path + "/flow_event.txt",skiprows=5,sep=";",header=None,engine="python")
-
-# #     flow_values = airflow.iloc[:,1].astype(float).values
-# #     thoracic_values = thoracic.iloc[:,1].astype(float).values
-# #     spo2_values = spo2.iloc[:,1].astype(float).values
-
-# #     Disease = events["event"].tolist()
-
-# #     start_timing = pd.to_datetime(events["start_time"])
-# #     end_timing = pd.to_datetime(events["end_time"])
-
-# #     reference_time = start_timing.iloc[0]
-
-# #     event_start_seconds = []
-# #     event_end_seconds = []
-
-# #     for i in range(len(Disease)):
-
-# #         event_start_seconds.append(
-# #             (start_timing.iloc[i] - reference_time).total_seconds()
-# #         )
-
-# #         event_end_seconds.append(
-# #             (end_timing.iloc[i] - reference_time).total_seconds()
-# #         )
-
-# #     airflow = np.array(flow_values)
-# #     thoracic = np.array(thoracic_values)
-# #     spo2 = np.array(spo2_values)
-
-# #     airflow, thoracic = preprocess_signals(airflow, thoracic)
-
-# #     airflow_windows = create_windows(airflow, fs=32)
-# #     thoracic_windows = create_windows(thoracic, fs=32)
-# #     spo2_windows = create_windows(spo2, fs=4)
-
-# #     labels = []
-
-# #     for i in range(len(airflow_windows)):
-
-# #         start_time = i * 15
-# #         end_time = start_time + 30
-
-# #         label = label_window(
-# #             start_time,
-# #             end_time,
-# #             Disease,
-# #             event_start_seconds,
-# #             event_end_seconds
-# #         )
-
-# #         labels.append(label)
-
-# #     min_len = min(
-# #         len(airflow_windows),
-# #         len(thoracic_windows),
-# #         len(spo2_windows)
-# #     )
-
-# #     dataset = []
-
-# #     for i in range(min_len):
-
-# #         row = {
-# #             "airflow": airflow_windows[i],
-# #             "thoracic": thoracic_windows[i],
-# #             "spo2": spo2_windows[i],
-# #             "label": labels[i]
-# #         }
-
-# #         dataset.append(row)
-
-# #     return dataset
-
-
-# # # -------------------------------
-# # # MAIN PIPELINE
-# # # -------------------------------
-# # DATA_DIR = "Data"
-
-# # all_data = []
-
-# # for participant in os.listdir(DATA_DIR):
-
-# #     folder = os.path.join(DATA_DIR, participant)
-
-# #     if os.path.isdir(folder):
-
-# #         print("Processing:", participant)
-
-# #         participant_data = process_participant(folder)
-
-# #         all_data.extend(participant_data)
-
-
-# # df = pd.DataFrame(all_data)
-
-# # os.makedirs("Dataset", exist_ok=True)
-
-# # df.to_pickle("Dataset/breathing_dataset.pkl")
-
-# # print("Dataset created successfully")
+print("Dataset saved at:", output_path)
