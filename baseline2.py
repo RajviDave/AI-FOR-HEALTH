@@ -3,7 +3,7 @@ import numpy as np
 from imblearn.over_sampling import RandomOverSampler
 import collections
 
-
+#label encoding
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
