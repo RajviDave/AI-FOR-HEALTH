@@ -9,6 +9,9 @@ Dataset/
 *.h5
 *.model
 
+Data/
+
+
 # C extensions
 *.so
 
