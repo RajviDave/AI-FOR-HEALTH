@@ -21,7 +21,6 @@ args = parser.parse_args()
 folder = args.name
 participant = os.path.basename(folder)
 
-
 # get processed signals
 t_flow, flow_values = vis_flow(folder,"flow.txt")
 t_thorac, thorac_values = thorac(folder,"thorac.txt")
@@ -35,9 +34,7 @@ pdf_path = f"Visualizations/{participant}_visualization.pdf"
 start_time = min(t_flow[0], t_thorac[0], t_spo2[0])
 end_time = max(t_flow[-1], t_thorac[-1], t_spo2[-1])
 
-
 window = 45   # seconds per page
-
 
 with PdfPages(pdf_path) as pdf:
 
@@ -78,6 +75,5 @@ with PdfPages(pdf_path) as pdf:
         plt.close(fig)
 
         current = next_time
-
 
 print("Saved:", pdf_path)
