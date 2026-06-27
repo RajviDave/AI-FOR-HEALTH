@@ -8,7 +8,7 @@ import os
 import pandas as pd
 import numpy as np
 
-
+#rms values for flow 
 def vis_flow(folder, file):
 
     Date_time = []

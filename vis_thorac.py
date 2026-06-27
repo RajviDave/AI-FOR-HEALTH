@@ -39,7 +39,7 @@ def thorac(folder,file):
 
     for i in range(0, len(thoracic_values), window):
         piece = thoracic_values[i:i+window]
-        
+        #mean value for thorac
         if len(piece)==window:
             mean = statistics.mean(piece)
             mean_values.append(mean)

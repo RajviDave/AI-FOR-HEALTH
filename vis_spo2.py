@@ -40,7 +40,7 @@ def vis_spo2(folder,file):
 
     for i in range(0, len(spo2_values), window):
         piece = spo2_values[i:i+window]
-        
+        # median value for spo2
         if len(piece)==window:
             median=statistics.median(piece)
             median_value.append(median)
