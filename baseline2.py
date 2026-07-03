@@ -55,7 +55,7 @@ X_train, y_train = ros.fit_resample(X_train, y_train)
 # Random Forest model
 # -------------------------------
 rf = RandomForestClassifier(
-    n_estimators=300,
+    n_estimators=100,
     class_weight='balanced_subsample',
     max_depth=20,
     min_samples_split=5,

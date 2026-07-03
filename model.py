@@ -29,7 +29,7 @@ X = np.stack(df["window"].values)
 y = df["label"].values
 participants = df["participant"].values
 
-# 🔥 Normalize each window (IMPORTANT)
+# Normalize each window (IMPORTANT)
 X = (X - X.mean(axis=1, keepdims=True)) / (X.std(axis=1, keepdims=True) + 1e-6)
 
 # Encode labels
@@ -111,7 +111,7 @@ for test_p in unique_participants:
     y_train = y[train_idx]
     y_test = y[test_idx]
 
-    # 🔥 Weighted Sampling (IMPORTANT)
+    #  Weighted Sampling (IMPORTANT)
     class_counts = np.bincount(y_train.numpy())
     weights = 1. / class_counts
     sample_weights = weights[y_train.numpy()]
